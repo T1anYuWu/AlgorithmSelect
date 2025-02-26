@@ -1,5 +1,5 @@
-from Graph import Graph
-from GraphProcessor import GraphProcessor
+from GraphAndFileProcess import Graph
+from AlgorithmsImplementation import GraphProcessor
 
 
 class AlgorithmSelector:
