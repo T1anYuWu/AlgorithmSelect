@@ -1,4 +1,6 @@
 import numpy as np
+
+
 class Graph:
     def __init__(self):
         self.nodes = set()  # node Set
@@ -18,9 +20,48 @@ class Graph:
         self.edges[node2].add(node1)
 
     def get_neighbors(self, node):
-        # get one node neighbors
+        # 获取节点的邻居
         return self.edges.get(node, set())
 
+    def remove_node(self, node):
+        """移除节点及其相关的所有边"""
+        if node in self.nodes:
+            # 移除所有相邻节点的连接
+            for neighbor in list(self.edges[node]):
+                self.edges[neighbor].remove(node)
+
+            # 移除节点本身
+            self.nodes.remove(node)
+            del self.edges[node]
+
+    def select_min_degree_vertex(self):
+        """选择度数最小的顶点"""
+        return min(self.nodes, key=lambda node: len(self.get_neighbors(node)))
+
+    def has_edge(self, node1, node2):
+        """判断两个节点是否有边"""
+        return node1 in self.edges and node2 in self.edges[node1]
+
+    def copy(self):
+        """创建一个图的深拷贝"""
+        new_graph = Graph()
+        new_graph.nodes = self.nodes.copy()
+        new_graph.edges = {node: neighbors.copy() for node, neighbors in self.edges.items()}
+        return new_graph
+
+    def degree(self, node):
+        """获取节点的度数（邻居数量）"""
+        return len(self.get_neighbors(node))
+
+    def subgraph(self, nodes):
+        """生成由指定节点集合诱导的子图"""
+        subgraph = Graph()
+        for node in nodes:
+            subgraph.add_node(node)
+            for neighbor in self.get_neighbors(node):
+                if neighbor in nodes:
+                    subgraph.add_edge(node, neighbor)
+        return subgraph
     def __repr__(self):
         # return Graph information
         return f"Graph(nodes={self.nodes}, edges={self.edges})"
