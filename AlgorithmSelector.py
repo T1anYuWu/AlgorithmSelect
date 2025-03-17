@@ -1,35 +1,31 @@
+import GraphAndFileProcess
 from GraphAndFileProcess import Graph
 from AlgorithmsImplementation import GraphProcessor
-
-
+from AlgorithmsImplementation import k_clique
+from AlgorithmsImplementation import max_clique
+from AlgorithmsImplementation import DBK_Algorithm
+from AlgorithmsImplementation import bro_kerbosch_algorithm
 class AlgorithmSelector:
     def __init__(self):
-        # init algorithms
+        # 初始化算法字典
         self.algorithms = {
-            "max_clq": self.max_clq,
-            #"max_cliqueDyn": self.max_cliquedyn,
-            "Bron-Kerbosch": self.bron_kerbosch,
-            "k-clique": self.k_clique
-            # Add algorithm here
+            "max_clq": max_clique,
+            "Bron-Kerbosch": bro_kerbosch_algorithm,
+            "k-clique": k_clique,
+            #"clisat": self.clisat,
+            'dbk': DBK_Algorithm
         }
 
-    def select_algorithm(self, algorithm_name: str, graph: Graph):
-        # algorithms selector
-        graph_processor = GraphProcessor(graph)
+    def register_algorithm(self, algorithm_name: str, algorithm_class):
+        """注册算法，通过名称和类来注册"""
+        self.algorithms[algorithm_name] = algorithm_class
+
+    def select_algorithm(self, algorithm_name: str, graph, **params):
+        """选择并返回相应的算法实例，并传递参数"""
         if algorithm_name in self.algorithms:
-            return self.algorithms[algorithm_name](graph_processor)
+            algorithm_class = self.algorithms[algorithm_name]
+            algorithm_instance = algorithm_class(graph)
+            return algorithm_instance.run(**params)  # 使用 run 方法并传递额外参数
         else:
-            raise ValueError(f"Algorithm {algorithm_name} not found.")
+            raise ValueError(f"算法 {algorithm_name} 未找到.")
 
-    def bron_kerbosch(self, graph_processor: GraphProcessor):
-        """选择Bron-Kerbosch算法"""
-        return graph_processor.bron_kerbosch()
-
-    def max_clq(self, graph_processor: GraphProcessor):
-        """选择MAXclq算法"""
-        return graph_processor.max_clq(graph_processor.graph)
-
-    def k_clique(self, graph_processor: GraphProcessor):
-        """选择k_clique算法"""
-        #k_max = graph_processor.initialize_k_value(graph_processor.graph)
-        return graph_processor.kclique_sequence(graph_processor.graph, 20)

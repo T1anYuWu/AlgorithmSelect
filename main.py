@@ -11,7 +11,7 @@ if __name__ == '__main__':
     graph = Graph()
 
     # get graph from DIMACS file
-    graph.parse_dimacs("dataset/dimacs/brock200_4.clq")
+    graph.parse_dimacs("dataset/dimacs/brock200_1.clq")
     """"测试用例
     graph = Graph()
     graph.add_edge(1, 2)
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     graph = Graph()
 
     # 随机生成包含 20 个节点的图
-    num_nodes = 50
+    num_nodes = 10
     probability = 0.5 # 连接的概率，您可以调整这个值来控制图的密度
 
     # 随机添加边
@@ -46,13 +46,15 @@ if __name__ == '__main__':
                 graph.add_edge(i, j)
 
     # 输出生成的图的信息
-    print(graph)"""
+    #print(graph)"""
 
     print(f"构建的图: {graph}")
     # select algorithm calculate max clique
     #max_clique = algortrihm_seletor.select_algorithm('max_clq',graph)
     #max_clique = algortrihm_seletor.select_algorithm('Bron-Kerbosch', graph)
-    max_clique = algortrihm_seletor.select_algorithm('k-clique', graph)
+    #max_clique = algortrihm_seletor.select_algorithm('k-clique', graph, k_max=None)
+    #max_clique = algortrihm_seletor.select_algorithm('clisat', graph)
+    max_clique = algortrihm_seletor.select_algorithm('dbk', graph)
     print("最大团的顶点集合为：", max_clique)
     print(f"最大团的大小为:{len(max_clique)}")
 

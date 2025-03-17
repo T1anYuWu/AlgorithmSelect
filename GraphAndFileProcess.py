@@ -1,3 +1,4 @@
+import networkx as nx
 import numpy as np
 
 
@@ -62,6 +63,20 @@ class Graph:
                 if neighbor in nodes:
                     subgraph.add_edge(node, neighbor)
         return subgraph
+
+    def sort_vertices(self):
+        """根据度数对顶点排序（降序）"""
+        return sorted(self.nodes, key=lambda x: self.degree(x), reverse=True)
+
+    def to_nx_graph(self):
+        """ 将自定义图转换为 NetworkX 图 """
+        G = nx.Graph()
+        for node in self.nodes:
+            G.add_node(node)
+        for node, neighbors in self.edges.items():
+            for neighbor in neighbors:
+                G.add_edge(node, neighbor)
+        return G
     def __repr__(self):
         # return Graph information
         return f"Graph(nodes={self.nodes}, edges={self.edges})"
