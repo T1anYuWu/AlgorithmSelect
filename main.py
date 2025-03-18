@@ -8,10 +8,10 @@ if __name__ == '__main__':
     algortrihm_seletor = AlgorithmSelector()
     
     # create Graph
-    #graph = Graph()
+    graph = Graph()
 
     # get graph from DIMACS file
-    #graph.parse_dimacs("dataset/dimacs/brock200_1.clq")
+    graph.parse_dimacs("dataset/dimacs/brock200_1.clq")
     """"测试用例
     graph = Graph()
     graph.add_edge(1, 2)
@@ -23,21 +23,21 @@ if __name__ == '__main__':
     graph.add_edge(3, 6)
     graph.add_edge(4, 5)
     #graph.add_edge(3,6)"""
-    """用例2"""
+    """用例2
     graph = Graph()
     graph.add_edge(1, 2)
     graph.add_edge(2, 3)
     graph.add_edge(3, 4)
     graph.add_edge(1, 3)
-    graph.add_edge(2, 4)
+    graph.add_edge(2, 4)"""
 
-    """用例3
+    """用例
     # 创建一个图对象
     graph = Graph()
 
     # 随机生成包含 20 个节点的图
-    num_nodes = 10
-    probability = 0.5 # 连接的概率，您可以调整这个值来控制图的密度
+    num_nodes = 200
+    probability = 0.6 # 连接的概率，可以调整这个值来控制图的密度
 
     # 随机添加边
     for i in range(1, num_nodes + 1):

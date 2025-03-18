@@ -1,5 +1,7 @@
 from copy import deepcopy
 from itertools import combinations
+import random
+
 import networkx as nx
 from pysat.examples.rc2 import RC2
 from pysat.solvers import Glucose3, Solver
@@ -222,8 +224,9 @@ class DBK_Algorithm:
     def run(self,LIMIT=None):
         if LIMIT is None:
             return self.DBK(LIMIT=50, solver_function=self.maximum_clique_exact_solve_np_hard)
-        return self.DBK(LIMIT, solver_function=self.maximum_clique_exact_solve_np_hard)
+        return self.DBK(LIMIT, solver_function=self.simulated_annealing)
 
+    """求解器start"""
     def maximum_clique_exact_solve_np_hard(self, graph):
         """
         计算最大团
@@ -234,13 +237,150 @@ class DBK_Algorithm:
         输出：
         - 最大团，返回一个列表，包含最大团的节点
         """
-        # 将自定义图转换为 NetworkX 图
-
-
         # 使用 NetworkX 的 find_cliques 函数找到所有团
         cliques = list(nx.find_cliques(graph))  # 找到所有团
         max_clique = max(cliques, key=len)  # 获取最大团
         return max_clique
+
+    def greedy_max_clique(self, G):
+        """
+        使用贪心算法计算最大团
+
+        输入：
+        - G：NetworkX 图
+
+        输出：
+        - 最大团的节点列表
+        """
+        nodes = list(G.nodes())
+        clique = {nodes[0]}
+        for node in nodes[1:]:
+            # 检查该节点是否与当前团的所有节点都有边
+            if all(neighbor in G[node] for neighbor in clique):
+                clique.add(node)
+        return list(clique)
+
+    def simulated_annealing(self, G, initial_temp=1000, cooling_rate=0.95, max_iter=10000):
+        """
+        使用模拟退火算法计算最大团
+
+        输入：
+        - G：NetworkX 图
+        - initial_temp: 初始温度
+        - cooling_rate: 降温率
+        - max_iter: 最大迭代次数
+
+        输出：
+        - 最大团的节点列表
+        """
+        current_clique = self.greedy_max_clique(G)  # 从贪心解开始
+        best_clique = current_clique
+        temp = initial_temp
+
+        for _ in range(max_iter):
+            if temp <= 1:
+                break
+
+            # 随机选择一个节点进行扰动
+            new_clique = list(current_clique)
+            node_to_remove = random.choice(new_clique)
+            new_clique.remove(node_to_remove)
+
+            # 如果新的团更大，则更新最优解
+            if len(new_clique) > len(best_clique):
+                best_clique = new_clique
+
+            # 计算接受概率
+            delta_energy = len(new_clique) - len(current_clique)
+            if delta_energy > 0 or random.random() < (2.718 ** (delta_energy / temp)):
+                current_clique = new_clique
+
+            # 降低温度
+            temp *= cooling_rate
+
+        return best_clique
+
+    def genetic_algorithm(self, G, population_size=100, generations=100, mutation_rate=0.1):
+        """
+        使用遗传算法计算最大团
+
+        输入：
+        - G：NetworkX 图
+        - population_size: 种群大小
+        - generations: 迭代代数
+        - mutation_rate: 变异率
+
+        输出：
+        - 最大团的节点列表
+        """
+
+        def fitness(clique):
+            return len(clique)
+
+        # 初始种群
+        population = [self.greedy_max_clique(G) for _ in range(population_size)]
+
+        for gen in range(generations):
+            # 选择适应度最好的个体
+            population.sort(key=fitness, reverse=True)
+            best_individual = population[0]
+
+            # 交叉和变异
+            new_population = population[:int(population_size / 2)]
+            for i in range(int(population_size / 2), population_size):
+                parent1, parent2 = random.sample(new_population, 2)
+                crossover_point = random.randint(1, len(parent1))
+                child = parent1[:crossover_point] + parent2[crossover_point:]
+                if random.random() < mutation_rate:
+                    child[random.randint(0, len(child) - 1)] = random.choice(list(G.nodes()))
+                new_population.append(child)
+
+            population = new_population
+
+        return population[0]
+
+    def branch_and_bound(self, G):
+        """
+        使用分支定界法计算最大团
+
+        输入：
+        - G：NetworkX 图
+
+        输出：
+        - 最大团的节点列表
+        """
+        best_clique = []
+
+        def bound(clique, G):
+            # 计算当前团的上界
+            # 这里只是一个简化示例，实际可能涉及更复杂的边界计算
+            return len(clique)
+
+        def branch(clique, remaining_nodes):
+            nonlocal best_clique
+            if not remaining_nodes:
+                if len(clique) > len(best_clique):
+                    best_clique = clique
+                return
+
+            node = remaining_nodes[0]
+            remaining_nodes = remaining_nodes[1:]
+
+            # 分支：包含当前节点
+            new_clique = clique + [node]
+            if bound(new_clique, G) > len(best_clique):
+                branch(new_clique, remaining_nodes)
+
+            # 分支：不包含当前节点
+            branch(clique, remaining_nodes)
+
+        branch([], list(G.nodes()))
+
+        return best_clique
+
+    """求解器end"""
+
+
     def mc_upper_bound(self, G):
         """
         计算最大团的上界
